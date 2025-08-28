@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Générateur JSON de Configuration Hôtel</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Générateur JSON de Configuration Hôtel</h1>
+
+        <section class="card">
+            <h2>Partenaires</h2>
+            <div id="partners-container">
+                <!-- Les partenaires seront ajoutés ici par JS -->
+            </div>
+            <button type="button" id="add-partner" class="add-button">Ajouter un partenaire</button>
+        </section>
+
+        <section class="card">
+            <h2>Ordre d'affichage des Chambres</h2>
+            <div id="rooms-container" class="sortable-list">
+                <!-- Les chambres seront ajoutées ici par JS -->
+            </div>
+            <button type="button" id="add-room" class="add-button">Ajouter un type de chambre</button>
+        </section>
+
+        <section class="card">
+            <h2>Ordre d'affichage des Plans</h2>
+            <div id="plans-container" class="sortable-list">
+                <!-- Les plans seront ajoutés ici par JS -->
+            </div>
+            <button type="button" id="add-plan" class="add-button">Ajouter un plan tarifaire</button>
+        </section>
+
+        <button type="button" id="generate-json" class="generate-button">Générer le JSON</button>
+        
+        <section class="card json-output">
+            <h2>JSON Généré</h2>
+            <pre id="json-output"></pre>
+            <button type="button" id="download-json" class="download-button" style="display: none;">Télécharger le JSON</button>
+        </section>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
