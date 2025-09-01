@@ -3,44 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Générateur JSON de Configuration Hôtel</title>
+    <title>Générateur de Configuration JSON</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
-        <h1>Générateur JSON de Configuration Hôtel</h1>
+        <header>
+            <h1>Générateur de Configuration JSON pour Hôtel</h1>
+            <p>Remplissez les champs ci-dessous pour générer le fichier de configuration.</p>
+        </header>
 
-        <section class="card">
-            <h2>Partenaires</h2>
-            <div id="partners-container">
-                <!-- Les partenaires seront ajoutés ici par JS -->
-            </div>
-            <button type="button" id="add-partner" class="add-button">Ajouter un partenaire</button>
-        </section>
+        <main>
+            <section class="card">
+                <h2>Partenaires</h2>
+                <div id="partners-container">
+                    <!-- Les partenaires seront ajoutés ici par JS -->
+                </div>
+                <button type="button" id="add-partner" class="add-button">Ajouter un partenaire</button>
+            </section>
 
-        <section class="card">
-            <h2>Ordre d'affichage des Chambres</h2>
-            <div id="rooms-container" class="sortable-list">
-                <!-- Les chambres seront ajoutées ici par JS -->
-            </div>
-            <button type="button" id="add-room" class="add-button">Ajouter un type de chambre</button>
-        </section>
+            <section class="card">
+                <h2>Ordre d'affichage des Chambres</h2>
+                <div id="rooms-container" class="sortable-list">
+                    <!-- Les chambres seront ajoutées ici par JS -->
+                </div>
+                <button type="button" id="add-room" class="add-button">Ajouter un type de chambre</button>
+            </section>
 
-        <section class="card">
-            <h2>Ordre d'affichage des Plans</h2>
-            <div id="plans-container" class="sortable-list">
-                <!-- Les plans seront ajoutés ici par JS -->
-            </div>
-            <button type="button" id="add-plan" class="add-button">Ajouter un plan tarifaire</button>
-        </section>
+            <section class="card">
+                <h2>Ordre d'affichage des Plans Tarifaires</h2>
+                <div id="plans-container" class="sortable-list">
+                    <!-- Les plans seront ajoutés ici par JS -->
+                </div>
+                <button type="button" id="add-plan" class="add-button">Ajouter un plan tarifaire</button>
+            </section>
 
-        <button type="button" id="generate-json" class="generate-button">Générer le JSON</button>
-        
-        <section class="card json-output">
-            <h2>JSON Généré</h2>
-            <pre id="json-output"></pre>
-            <button type="button" id="download-json" class="download-button" style="display: none;">Télécharger le JSON</button>
-        </section>
+            <button type="button" id="generate-json" class="generate-button">Générer le JSON</button>
+            
+            <section id="json-result-section" class="card json-output" style="display: none;">
+                <h2>JSON Généré</h2>
+                <pre id="json-output"></pre>
+                <div class="output-actions">
+                    <button type="button" id="copy-json" class="action-button">Copier le code</button>
+                    <button type="button" id="save-as-json" class="action-button">Enregistrer sous...</button>
+                    <button type="button" id="download-json" class="action-button">Télécharger</button>
+                </div>
+            </section>
+        </main>
     </div>
 
     <script src="script.js"></script>
