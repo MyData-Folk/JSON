@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // --- Sélection des éléments du DOM ---
     const partnersContainer = document.getElementById('partners-container');
     const roomsContainer = document.getElementById('rooms-container');
     const plansContainer = document.getElementById('plans-container');
@@ -6,18 +7,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const addRoomBtn = document.getElementById('add-room');
     const addPlanBtn = document.getElementById('add-plan');
     const generateJsonBtn = document.getElementById('generate-json');
+    const jsonResultSection = document.getElementById('json-result-section');
     const jsonOutput = document.getElementById('json-output');
+    const copyJsonBtn = document.getElementById('copy-json');
+    const saveAsJsonBtn = document.getElementById('save-as-json');
     const downloadJsonBtn = document.getElementById('download-json');
 
-    // --- Fonctions pour ajouter des éléments dynamiquement ---
+    // --- Fonctions de création d'éléments ---
 
     function createPartnerItem(partner = { name: '', commission: '', codes: '' }) {
         const div = document.createElement('div');
         div.classList.add('partner-item');
         div.innerHTML = `
             <div class="input-group">
-                <label>Nom du partenaire (ID)</label>
-                <input type="text" value="${partner.name}" placeholder="Ex: Agoda (6144)" required>
+                <label>Nom du partenaire (ID) *</label>
+                <input type="text" class="partner-name" value="${partner.name}" placeholder="Ex: Agoda (6144)" required>
             </div>
             <div class="input-group">
                 <label>Commission (%)</label>
@@ -38,100 +42,152 @@ document.addEventListener('DOMContentLoaded', () => {
         div.classList.add('sortable-item');
         div.innerHTML = `
             <input type="text" value="${value}" placeholder="${placeholderText}" required>
-            <button type="button" class="move-button move-up">▲</button>
-            <button type="button" class="move-button move-down">▼</button>
-            <button type="button" class="remove-button">Supprimer</button>
+            <button type="button" class="move-button move-up" aria-label="Monter">▲</button>
+            <button type="button" class="move-button move-down" aria-label="Descendre">▼</button>
+            <button type="button" class="remove-button" aria-label="Supprimer">Supprimer</button>
         `;
-
         div.querySelector('.remove-button').addEventListener('click', () => div.remove());
         div.querySelector('.move-up').addEventListener('click', () => moveItem(div, -1));
         div.querySelector('.move-down').addEventListener('click', () => moveItem(div, 1));
         container.appendChild(div);
     }
 
-    // --- Fonctions pour déplacer les éléments (drag-and-drop-like) ---
+    // --- Fonction pour déplacer les éléments ---
     function moveItem(item, direction) {
         const parent = item.parentNode;
-        const siblings = Array.from(parent.children).filter(child => child.classList.contains('sortable-item'));
+        const siblings = Array.from(parent.children);
         const index = siblings.indexOf(item);
-        
-        if (direction === -1 && index > 0) { // Move up
-            parent.insertBefore(item, siblings[index - 1]);
-        } else if (direction === 1 && index < siblings.length - 1) { // Move down
-            parent.insertBefore(item, siblings[index + 1].nextSibling);
+        const newIndex = index + direction;
+
+        if (newIndex >= 0 && newIndex < siblings.length) {
+            parent.removeChild(item);
+            parent.insertBefore(item, siblings[newIndex]);
         }
+    }
+
+    // --- Fonction de téléchargement DIRECT (méthode classique) ---
+    function downloadFile(content, fileName, contentType) {
+        const a = document.createElement('a');
+        const file = new Blob([content], { type: contentType });
+        a.href = URL.createObjectURL(file);
+        a.download = fileName;
+        a.click();
+        URL.revokeObjectURL(a.href); // Libère la mémoire
+    }
+    
+    // --- NOUVELLE FONCTION "Enregistrer sous" avec API moderne et fallback ---
+    async function saveFileAs(content, fileName, contentType) {
+        // Option 1: Utiliser l'API moderne si elle est supportée
+        if ('showSaveFilePicker' in window) {
+            try {
+                const handle = await window.showSaveFilePicker({
+                    suggestedName: fileName,
+                    types: [{
+                        description: 'JSON Files',
+                        accept: { 'application/json': ['.json'] },
+                    }],
+                });
+                const writable = await handle.createWritable();
+                await writable.write(content);
+                await writable.close();
+                return; // Succès, on arrête ici
+            } catch (err) {
+                // L'utilisateur a annulé la boîte de dialogue ou une erreur est survenue
+                console.log('Save As dialog was cancelled or failed.', err);
+                return; // Ne pas exécuter le fallback si l'utilisateur annule
+            }
+        }
+
+        // Option 2: Fallback pour les navigateurs non compatibles (Firefox, Safari)
+        // Cette méthode se comportera comme un téléchargement standard
+        console.log('File System Access API not supported. Falling back to standard download.');
+        downloadFile(content, fileName, contentType);
     }
 
 
     // --- Écouteurs d'événements pour les boutons "Ajouter" ---
     addPartnerBtn.addEventListener('click', () => createPartnerItem());
-    addRoomBtn.addEventListener('click', () => createSortableItem(roomsContainer, 'Nom du type de chambre (Ex: Chambre Double Classique)'));
-    addPlanBtn.addEventListener('click', () => createSortableItem(plansContainer, 'Nom du plan tarifaire (Ex: OTA-RO-FLEX - OTA RO FLEX)'));
+    addRoomBtn.addEventListener('click', () => createSortableItem(roomsContainer, 'Nom du type de chambre *'));
+    addPlanBtn.addEventListener('click', () => createSortableItem(plansContainer, 'Nom du plan tarifaire *'));
 
-    // --- Fonction de génération du JSON ---
+    // --- Écouteur pour la génération du JSON ---
     generateJsonBtn.addEventListener('click', () => {
-        const config = {
-            partners: {},
-            displayOrder: {
-                rooms: [],
-                plans: []
-            }
-        };
+        const config = { partners: {}, displayOrder: { rooms: [], plans: [] } };
+        let isValid = true;
 
-        // Récupérer les données des partenaires
         partnersContainer.querySelectorAll('.partner-item').forEach(item => {
-            const nameInput = item.querySelector('input[type="text"]');
+            const nameInput = item.querySelector('.partner-name');
             const commissionInput = item.querySelector('input[type="number"]');
             const codesTextarea = item.querySelector('textarea');
-
             const partnerNameId = nameInput.value.trim();
-            if (partnerNameId) {
+            if (!partnerNameId) {
+                isValid = false;
+                nameInput.style.borderColor = 'red';
+            } else {
+                nameInput.style.borderColor = '';
                 const commissionValue = commissionInput.value !== '' ? parseFloat(commissionInput.value) : null;
-                const codes = codesTextarea.value
-                                .split('\n')
-                                .map(code => code.trim())
-                                .filter(code => code !== '');
-
-                config.partners[partnerNameId] = {
-                    commission: commissionValue,
-                    codes: codes
-                };
+                const codes = codesTextarea.value.split('\n').map(code => code.trim()).filter(Boolean);
+                config.partners[partnerNameId] = { commission: commissionValue, codes: codes };
             }
         });
+        
+        function getSortableData(container, key) {
+             container.querySelectorAll('.sortable-item input[type="text"]').forEach(input => {
+                const value = input.value.trim();
+                if (value) {
+                    config.displayOrder[key].push(value);
+                    input.style.borderColor = '';
+                } else {
+                    isValid = false;
+                    input.style.borderColor = 'red';
+                }
+            });
+        }
+        
+        getSortableData(roomsContainer, 'rooms');
+        getSortableData(plansContainer, 'plans');
+        
+        if (!isValid) {
+            alert("Veuillez remplir tous les champs obligatoires (marqués d'un * dans le placeholder ou le label).");
+            return;
+        }
 
-        // Récupérer l'ordre d'affichage des chambres
-        roomsContainer.querySelectorAll('.sortable-item input[type="text"]').forEach(input => {
-            const roomName = input.value.trim();
-            if (roomName) {
-                config.displayOrder.rooms.push(roomName);
-            }
-        });
-
-        // Récupérer l'ordre d'affichage des plans
-        plansContainer.querySelectorAll('.sortable-item input[type="text"]').forEach(input => {
-            const planName = input.value.trim();
-            if (planName) {
-                config.displayOrder.plans.push(planName);
-            }
-        });
-
-        // Afficher le JSON
         const jsonString = JSON.stringify(config, null, 2);
         jsonOutput.textContent = jsonString;
-        downloadJsonBtn.style.display = 'block'; // Afficher le bouton de téléchargement
-
-        // Créer un Blob pour le téléchargement
-        const blob = new Blob([jsonString], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        downloadJsonBtn.href = url;
-        downloadJsonBtn.download = 'config_hotel.json';
+        jsonResultSection.style.display = 'block';
     });
 
-    // --- Initialisation avec un exemple ou des éléments vides ---
-    createPartnerItem({ name: 'Expedia (1903)', commission: '18', codes: 'OTA-RO-FLEX\nOTA-RO-NANR' });
-    createPartnerItem(); // Un partenaire vide pour commencer
-    createSortableItem(roomsContainer, 'Nom du type de chambre (Ex: Chambre Double Classique)', 'Chambre Double Classique');
-    createSortableItem(roomsContainer, 'Nom du type de chambre (Ex: Chambre Double Classique)'); // Une chambre vide
-    createSortableItem(plansContainer, 'Nom du plan tarifaire (Ex: OTA-RO-FLEX - OTA RO FLEX)', 'OTA-RO-FLEX - OTA RO FLEX');
-    createSortableItem(plansContainer, 'Nom du plan tarifaire (Ex: OTA-RO-FLEX - OTA RO FLEX)'); // Un plan vide
+    // --- Écouteurs pour les boutons d'action du JSON généré ---
+    
+    copyJsonBtn.addEventListener('click', () => {
+        navigator.clipboard.writeText(jsonOutput.textContent).then(() => {
+            copyJsonBtn.textContent = 'Copié !';
+            copyJsonBtn.classList.add('copied');
+            setTimeout(() => {
+                copyJsonBtn.textContent = 'Copier le code';
+                copyJsonBtn.classList.remove('copied');
+            }, 2000);
+        }).catch(err => {
+            console.error('Erreur lors de la copie : ', err);
+            alert('La copie a échoué. Votre navigateur n\'est peut-être pas compatible ou la page n\'est pas sécurisée (https).');
+        });
+    });
+
+    // Le bouton "Enregistrer sous" utilise la nouvelle fonction asynchrone
+    saveAsJsonBtn.addEventListener('click', () => {
+        saveFileAs(jsonOutput.textContent, 'config_hotel.json', 'application/json');
+    });
+
+    // Le bouton "Télécharger" utilise l'ancienne fonction pour un téléchargement direct
+    downloadJsonBtn.addEventListener('click', () => {
+        downloadFile(jsonOutput.textContent, 'config_hotel.json', 'application/json');
+    });
+
+    // --- Initialisation avec des éléments d'exemple ---
+    createPartnerItem({ name: 'Booking.com (1234)', commission: '15', codes: 'OTA-RO-FLEX\nOTA-RO-NANR' });
+    createPartnerItem();
+    createSortableItem(roomsContainer, 'Nom du type de chambre *', 'Chambre Double Classique');
+    createSortableItem(roomsContainer, 'Nom du type de chambre *');
+    createSortableItem(plansContainer, 'Nom du plan tarifaire *', 'OTA-RO-FLEX - OTA RO FLEX');
+    createSortableItem(plansContainer, 'Nom du plan tarifaire *');
 });
