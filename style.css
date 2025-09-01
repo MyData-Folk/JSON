@@ -1,206 +1,235 @@
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f7f6;
+:root {
+    --primary-color: #007bff;
+    --secondary-color: #6c757d;
+    --background-color: #f8f9fa;
+    --card-background: #ffffff;
+    --text-color: #212529;
+    --border-color: #dee2e6;
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    --border-radius: 8px;
+}
+
+* {
+    box-sizing: border-box;
     margin: 0;
-    padding: 20px;
-    color: #333;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.6;
 }
 
 .container {
     max-width: 900px;
-    margin: 30px auto;
-    background-color: #ffffff;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin: 2rem auto;
+    padding: 1rem;
 }
 
-h1 {
+header {
     text-align: center;
-    color: #0056b3;
-    margin-bottom: 30px;
+    margin-bottom: 2rem;
 }
 
-h2 {
-    color: #007bff;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 10px;
-    margin-top: 25px;
-    margin-bottom: 20px;
+header h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
 }
 
 .card {
-    background-color: #fcfcfc;
-    border: 1px solid #e0e0e0;
-    border-radius: 6px;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    background-color: var(--card-background);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--box-shadow);
 }
 
-.partner-item, .sortable-item {
-    display: flex;
-    flex-wrap: wrap; /* Permet aux éléments de passer à la ligne */
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 15px;
-    padding: 10px;
-    border: 1px solid #dcdcdc;
-    border-radius: 5px;
-    background-color: #ffffff;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+.card h2 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    font-size: 1.25rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.75rem;
 }
 
-.partner-item input[type="text"],
-.partner-item input[type="number"],
-.partner-item textarea,
-.sortable-item input[type="text"] {
-    flex-grow: 1; /* Permet à l'input de prendre l'espace disponible */
-    padding: 8px 12px;
-    border: 1px solid #ccc;
+.input-group {
+    margin-bottom: 1rem;
+}
+
+.input-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.input-group label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.input-group input[type="text"],
+.input-group input[type="number"],
+.input-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
     border-radius: 4px;
-    font-size: 1em;
-    min-width: 150px; /* Taille minimale pour les inputs */
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.partner-item textarea {
-    height: 60px; /* Hauteur fixe pour la textarea */
-    resize: vertical; /* Permet de redimensionner verticalement */
-    min-width: 250px;
+.input-group input:focus,
+.input-group textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
 }
 
-.partner-item label, .sortable-item label {
-    font-weight: bold;
-    color: #555;
-    white-space: nowrap; /* Empêche le label de passer à la ligne */
+textarea {
+    min-height: 80px;
+    resize: vertical;
 }
-
-.partner-item .input-group {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-    min-width: 180px;
-}
-
-.partner-item .input-group label {
-    margin-bottom: 5px;
-}
-
 
 button {
-    padding: 10px 18px;
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    padding: 0.75rem 1.5rem;
     border: none;
-    border-radius: 5px;
+    border-radius: 4px;
     cursor: pointer;
-    font-size: 1em;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    margin-left: 5px;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+button:active {
+    transform: translateY(1px);
 }
 
 .add-button {
-    background-color: #28a745;
-    color: white;
-    display: block;
-    width: fit-content;
-    margin-top: 20px;
+    background-color: #e9ecef;
+    color: var(--text-color);
+    margin-top: 1rem;
 }
 
 .add-button:hover {
-    background-color: #218838;
-    transform: translateY(-1px);
-}
-
-.remove-button {
-    background-color: #dc3545;
-    color: white;
-}
-
-.remove-button:hover {
-    background-color: #c82333;
-    transform: translateY(-1px);
-}
-
-.move-button {
-    background-color: #6c757d;
-    color: white;
-    padding: 8px 12px; /* Plus petit pour les flèches */
-}
-
-.move-button:hover {
-    background-color: #5a6268;
-    transform: translateY(-1px);
+    background-color: #ced4da;
 }
 
 .generate-button {
-    background-color: #007bff;
-    color: white;
-    display: block;
     width: 100%;
-    margin-top: 30px;
-    padding: 15px;
-    font-size: 1.1em;
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 700;
+    font-size: 1.1rem;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
 }
 
 .generate-button:hover {
     background-color: #0056b3;
-    transform: translateY(-1px);
 }
 
-.json-output {
-    margin-top: 30px;
+.remove-button, .move-button {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.9rem;
+    margin-left: 0.5rem;
 }
 
-#json-output {
-    background-color: #e9ecef;
-    border: 1px solid #ced4da;
-    padding: 15px;
+.remove-button {
+    background-color: var(--danger-color);
+    color: white;
+}
+.remove-button:hover {
+    background-color: #c82333;
+}
+
+.move-button {
+    background-color: var(--secondary-color);
+    color: white;
+}
+.move-button:hover {
+    background-color: #5a6268;
+}
+
+.partner-item {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    border: 1px solid var(--border-color);
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    margin-bottom: 1rem;
+    position: relative;
+}
+
+.partner-item .remove-button {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+}
+
+.sortable-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    padding: 0.5rem;
+    background-color: #f8f9fa;
     border-radius: 4px;
-    white-space: pre-wrap; /* Permet les retours à la ligne */
-    word-wrap: break-word; /* Casse les mots longs */
+}
+
+.sortable-item input {
+    flex-grow: 1;
+    border: none;
+    background: transparent;
+    padding: 0.5rem;
+}
+.sortable-item input:focus {
+    outline: 1px solid var(--primary-color);
+    border-radius: 2px;
+}
+
+.json-output pre {
+    background-color: #2b2b2b;
+    color: #f8f8f2;
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    white-space: pre-wrap;
+    word-wrap: break-word;
     max-height: 400px;
     overflow-y: auto;
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 0.9em;
-    color: #495057;
 }
 
-.download-button {
-    background-color: #17a2b8;
+.output-actions {
+    margin-top: 1rem;
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.action-button {
+    background-color: var(--success-color);
     color: white;
-    margin-top: 15px;
-    display: block; /* S'assure qu'il est sur sa propre ligne si non caché */
-    width: fit-content;
+    flex-grow: 1;
 }
 
-.download-button:hover {
-    background-color: #138496;
-    transform: translateY(-1px);
+.action-button:hover {
+    background-color: #218838;
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .container {
-        margin: 15px;
-        padding: 20px;
+.action-button.copied {
+    background-color: #1e7e34;
+}
+
+@media (max-width: 600px) {
+    .partner-item {
+        grid-template-columns: 1fr;
     }
-    .partner-item, .sortable-item {
-        flex-direction: column;
-        align-items: stretch;
-    }
-    .partner-item .input-group,
-    .partner-item input[type="text"],
-    .partner-item input[type="number"],
-    .partner-item textarea,
-    .sortable-item input[type="text"] {
-        width: 100%;
-        min-width: unset;
-    }
-    button {
-        width: auto;
-        margin-left: 0;
-        margin-top: 10px;
-    }
-    .add-button, .generate-button, .download-button {
+    .partner-item .remove-button {
+        position: static;
+        margin-top: 1rem;
         width: 100%;
     }
 }
